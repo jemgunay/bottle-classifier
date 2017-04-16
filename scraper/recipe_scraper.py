@@ -3,12 +3,14 @@ import argparse
 import re
 import requests
 from bs4 import BeautifulSoup
+from bottle_db import *
 
 # parse arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-u", "--url", required=True, help="URL to scrape from 'www.cocktail.uk.com' (by recipe or ingredient)")
 ap.add_argument("-p", "--pages", default=1, help="number of results pages to scrape (when scraping by ingredient only)", type=int)
-ap.add_argument("-d", "--debug", default=False, help="print data collection debug info", type=bool)
+ap.add_argument("-d", "--debug", default=True, help="print data collection debug info", type=bool)
+ap.add_argument("-s", "--save", default=False, help="save new recipes to local MySQL database", type=bool)
 args = vars(ap.parse_args())
 print()
 
@@ -41,6 +43,8 @@ def scrape_ingredient(ingredient_name):
 		
 		# iterate over each recipe on the retrieved ingredient page
 		for recipe in soup.find_all('a')[::2]:
+			
+			# filter out irrelevant tags
 			if not len(recipe.find_parents("div", class_="item")):
 				if "/cocktails/" in recipe.get('href') and "/containing/" not in recipe.get('href'):
 					scrape_recipe(recipe.get('href')[11:])
@@ -51,15 +55,24 @@ def scrape_recipe(recipe_name):
 	html = request_page(recipe_name)
 	# scrape recipe details
 	soup = BeautifulSoup(html, 'html.parser')
+	
+	recipe_details = {
+		"name" : soup.find(itemprop="name").string[:-9].strip(),
+		"instructions" : str(soup.find(itemprop="instructions").string).strip(),
+		"serves" : soup.find(style="margin-bottom: 5px;").string[8:].strip(),
+		"rating" : soup.find(itemprop="rating").string.strip(),
+		"ingredients" : {}
+	}
+	
 	if args['debug']:
 		# recipe name
-		print("> " + soup.find(itemprop="name").string[:-9])
+		print("> " + recipe_details["name"])
 		# instruction notes
-		print(soup.find(itemprop="instructions").string)
+		print(recipe_details["instructions"])
 		# serves
-		print("serves: " + soup.find(style="margin-bottom: 5px;").string[8:])
+		print("serves: " + recipe_details["serves"])
 		# rating
-		print("rating: " + soup.find(itemprop="rating").string + "\n")
+		print("rating: " + recipe_details["rating"] + "\n")
 	
 	for ingredient in soup.find_all(itemprop="ingredient"):
 		# get all ingredients and their measures
@@ -71,8 +84,13 @@ def scrape_recipe(recipe_name):
 			ingredient = ""
 		
 		if args['debug']:
+			# nested dict for ingredients & their measures
+			recipe_details['ingredients'][ingredient.strip()] = measurement.strip()
 			print(measurement + " " + ingredient)
 	
+	if args['save']:
+		insert_recipe(recipe_details)
+		
 	if args['debug']:
 		print()
 		
@@ -85,7 +103,7 @@ def request_page(query):
 	else:
 		print("> Invalid URL provided: cocktail recipe or ingredient does not exist (" + query + ")")
 		sys.exit()
-		
+
 
 validate_URL(args['url'])
 
