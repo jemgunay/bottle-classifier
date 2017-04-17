@@ -5,8 +5,8 @@ import cv2
 #bottle_cascade = cv2.CascadeClassifier('classifier_2/classifier/cascade.xml')
 #bottle_cascade = cv2.CascadeClassifier('classifier_3/classifier/cascade.xml')
 #bottle_cascade = cv2.CascadeClassifier('classifier_2_resized/classifier/cascade.xml')
-bottle_cascade = cv2.CascadeClassifier('classifier_2_resized_2/classifier_good/cascade.xml')
-bottle_cascade_2 = cv2.CascadeClassifier('classifier_2_resized_2/classifier/cascade.xml')
+bottle_cascade = cv2.CascadeClassifier('classifier_jd/classifier_good/cascade.xml')
+bottle_cascade_2 = cv2.CascadeClassifier('classifier_jd/classifier/cascade.xml')
 cap = cv2.VideoCapture(0)
 
 while(1):
