@@ -4,9 +4,9 @@ import cv2
 #bottle_cascade = cv2.CascadeClassifier('classifier_1/classifier/cascade.xml')
 #bottle_cascade = cv2.CascadeClassifier('classifier_2/classifier/cascade.xml')
 #bottle_cascade = cv2.CascadeClassifier('classifier_3/classifier/cascade.xml')
-#bottle_cascade = cv2.CascadeClassifier('classifier_2_resized/classifier/cascade.xml')
-bottle_cascade = cv2.CascadeClassifier('classifier_jd/classifier_good/cascade.xml')
-bottle_cascade_2 = cv2.CascadeClassifier('classifier_jd/classifier/cascade.xml')
+bottle_cascade = cv2.CascadeClassifier('classifier_2_resized_2/classifier/cascade.xml')
+#bottle_cascade = cv2.CascadeClassifier('classifier_jd/classifier_first/cascade.xml')
+bottle_cascade_2 = cv2.CascadeClassifier('classifier_jd/classifier_second/cascade.xml')
 cap = cv2.VideoCapture(0)
 
 while(1):
@@ -29,7 +29,7 @@ while(1):
 		w_shift = int(w * 0.3)
 		h_shift = int(h * 0.1)
 		cv2.rectangle(frame_resized, (x+w_shift, y+h_shift), (x+w-w_shift, y+h+h_shift), (255,0,0), 1)
-		cv2.putText(frame_resized, "vodka", (x+w_shift,y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255))
+		cv2.putText(frame_resized, "bottle_1", (x+w_shift,y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255))
 	
 	# apply second cascade classifier
 	detected_bottle_2 = bottle_cascade_2.detectMultiScale(frame_grey, 1.05, 6)
@@ -38,7 +38,7 @@ while(1):
 		w_shift = int(w * 0.3)
 		h_shift = int(h * 0.1)
 		cv2.rectangle(frame_resized_2, (x+w_shift, y+h_shift), (x+w-w_shift, y+h+h_shift), (0,255,0), 1)
-		cv2.putText(frame_resized_2, "vodka_2", (x+w_shift,y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255))
+		cv2.putText(frame_resized_2, "bottle_2", (x+w_shift,y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255))
 	
 	vis = np.concatenate((frame_resized, frame_resized_2), axis=1)
 	
@@ -47,5 +47,6 @@ while(1):
 	# wait for 5 seconds before closing frame
 	if cv2.waitKey(25) == 27:
 		break
+
 
 cv2.destroyAllWindows()
