@@ -1,4 +1,3 @@
-from search_histogram import Searcher
 import numpy as np
 import argparse
 import cPickle
@@ -6,17 +5,15 @@ import cv2
  
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-d", "--dataset", required = True, help = "Path to the directory that contains the images we just indexed")
-ap.add_argument("-i", "--index", required = True, help = "Path to where we stored our index")
+ap.add_argument("-d", "--dataset", required=False, default="", help="Path to the directory containing histogram data")
 args = vars(ap.parse_args())
 		 
  # load the index and initialize our searcher
-index = cPickle.loads(open(args["index"]).read())
-searcher = Searcher(index)
+index = cPickle.loads(open(args["index"]).read(), "rb")
 
 for (query, queryFeatures) in index.items():
 	# perform search
-	results = searcher.search(queryFeatures)
+	results = search(queryFeatures)
 	
 	# load query image
 	path = args["dataset"] + "/%s" % query
@@ -43,3 +40,32 @@ for (query, queryFeatures) in index.items():
 	cv2.imshow("Results 1-5", montageA)
 	cv2.imshow("Results 6-10", montageB)
 	cv2.waitKey(0)
+	
+
+# 
+def search(self, queryFeatures):
+	results = {}
+	
+	for (k, features) in self.index.items():
+		# compute chi-squared distance
+		# switch out for opencv's own methods
+		d = self.chi2_distance(features, queryFeatures)
+		
+		# update results dict, 
+		results[k] = d	
+	
+	# sort results into closest match first
+	results = sorted([v, k] for (k, v) in results.items())
+
+	return results
+
+
+# apply distance metric
+def chi2_distance(self, histA, histB, eps = 1e-10):
+	# compute chi-squared
+	d = 0.5 * np.sum([((a - b) ** 2) / (a + b + eps) for (a, b) in zip(histA, histB)])
+	
+	return d
+
+
+

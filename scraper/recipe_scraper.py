@@ -1,9 +1,11 @@
-import sys
+import os, sys
 import argparse
 import re
 import requests
 from bs4 import BeautifulSoup
-from bottle_db import *
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/database")
+import db
 
 # parse arguments
 ap = argparse.ArgumentParser()
@@ -89,7 +91,7 @@ def scrape_recipe(recipe_name):
 			print(measurement + " " + ingredient)
 	
 	if args['save']:
-		insert_recipe(recipe_details)
+		db.insert_recipe(recipe_details)
 		
 	if args['debug']:
 		print()
