@@ -44,4 +44,11 @@ def get_histograms(classifier_id):
 	return histograms
 	
 	
+# get all bottle by id
+def get_bottle(bottle_id):
+	bottle = Bottle.select().where(Bottle.bottle_id == bottle_id)
+	
+	return bottle
+	
+	
 db.close()

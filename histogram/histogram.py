@@ -9,7 +9,8 @@ import db
 
 
 # histogram bin size (RGB/HSV)
-num_bins = [8, 8, 8]
+rgb_bins = (4, 4, 4)
+hsv_bins = (8, 12, 3)
 
 
 def match_histogram(roi, classifier_id, histogram_type):
@@ -24,6 +25,9 @@ def match_histogram(roi, classifier_id, histogram_type):
 	histograms = db.get_histograms(classifier_id)
 	index = {}
 	for hist in histograms:
+		if hist.enabled == False:
+			continue
+			
 		# populate index dict with decoded candidate histograms
 		hist_path = hist.rgb_path
 		if histogram_type == "HSV":
@@ -63,7 +67,6 @@ def chi2_distance(histA, histB, eps = 1e-10):
 	d = 0.5 * np.sum([((a - b) ** 2) / (a + b + eps) for (a, b) in zip(histA, histB)])
 	
 	return d
-	
 
 
 # return one dimensional rgb & hsv histograms of image
@@ -72,8 +75,8 @@ def create_histograms(image_rgb):
 	image_hsv = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2HSV)
 	
 	# compute 3D RGB & HSV histogram
-	hist_rgb = cv2.calcHist([image_rgb], [0, 1, 2], None, num_bins, [0, 256, 0, 256, 0, 256])
-	hist_hsv = cv2.calcHist([image_hsv], [0, 1, 2], None, num_bins, [0, 256, 0, 256, 0, 256])
+	hist_rgb = cv2.calcHist([image_rgb], [0, 1, 2], None, rgb_bins, [0, 256, 0, 256, 0, 256])
+	hist_hsv = cv2.calcHist([image_hsv], [0, 1, 2], None, hsv_bins, [0, 180, 0, 256, 0, 256])
 	# normalise so scaled images will have similar histograms
 	hist_rgb = cv2.normalize(hist_rgb, hist_rgb)
 	hist_hsv = cv2.normalize(hist_hsv, hist_hsv)

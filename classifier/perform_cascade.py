@@ -13,6 +13,7 @@ import histogram
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=False, default="", help="Path to the image for bottle classification")
 ap.add_argument("-t", "--type", required=False, default="RGB", help="(RGB or HSV) Colour histogram type to use")
+ap.add_argument("-m", "--metric", required=False, default="Chi-Squared", help="Colour histogram comparison distance metric")
 args = vars(ap.parse_args())
 
 
@@ -35,9 +36,9 @@ def init_classifier():
 			# classifier file does not exist
 			initialised_classifier = cv2.CascadeClassifier(classifier.lbp_path)
 			loaded_classifiers.append([classifier, initialised_classifier])
-			print("Success: " + classifier.lbp_path)
+			print("Enabled:  " + classifier.lbp_path)
 		else:
-			print("Failed:  " + classifier.lbp_path)
+			print("Disabled: " + classifier.lbp_path)
 
 	print()
 
@@ -86,6 +87,9 @@ def classify(frame):
 	# get greyscale image
 	frame_grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	
+	# equalise
+	#frame_grey = cv2.equalizeHist(frame_grey)
+	
 	for i, loaded_classifier in enumerate(loaded_classifiers):
 		# apply cascade classifier
 		detected_bottles = loaded_classifier[1].detectMultiScale(frame_grey, scaleFactor=1.05, minNeighbors=5, minSize=(loaded_classifier[0].min_width, loaded_classifier[0].min_height))
@@ -109,11 +113,15 @@ def classify(frame):
 			# skip draw if histogram search fails
 			if bottle_match.action == False:
 				break
+				
+			bottle = db.get_bottle(bottle_match.bottle_id)[0]
 		
 			# draw rect around bottle ROI on original frame & label: image, top left point, bottom right point
 			cv2.rectangle(frame, (crop_top_left[0], crop_top_left[1]), (crop_bottom_right[0], crop_bottom_right[1]), frame_colours[i][1], 1)
 			# draw text label
-			cv2.putText(frame, bottle_match.rgb_path, (x+crop_w,y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255))
+			cv2.putText(frame, bottle.name, (crop_top_left[0], crop_top_left[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, frame_colours[i][1], 2)
+			cv2.putText(frame, bottle.name, (crop_top_left[0], crop_top_left[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,0,0), 1)
+
 			
 	
 	# draw image to window

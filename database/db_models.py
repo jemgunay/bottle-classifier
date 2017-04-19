@@ -60,6 +60,7 @@ class Histogram(Model):
 	rgb_path = CharField()
 	hsv_path = CharField()
 	action = BooleanField()
+	enabled = BooleanField()
 
 	class Meta:
 		database = db
