@@ -44,6 +44,8 @@ class Classifier(Model):
 	min_height = SmallIntegerField()
 	crop_width = SmallIntegerField()
 	crop_height = SmallIntegerField()
+	crop_offset_x = SmallIntegerField()
+	crop_offset_y = SmallIntegerField()
 	enabled = BooleanField()
 
 	class Meta:

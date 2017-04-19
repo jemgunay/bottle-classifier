@@ -19,7 +19,7 @@ args = vars(ap.parse_args())
 # target image display width
 target_width = 600.0
 # outline drawing colours
-frame_colours = [(89, 218, 137), (14, 66, 255), (135, 107, 51), (102, 136, 249), (158, 189, 128)]
+frame_colours = [["green", (89, 218, 137)], ["red", (14, 66, 255)], ["blue", (135, 107, 51)], ["peach", (102, 136, 249)], ["light_blue", (158, 189, 128)]]
 
 # get all cascades from db
 classifier_table = db.get_classifiers()
@@ -33,8 +33,8 @@ def init_classifier():
 	for classifier in classifier_table:
 		if os.path.isfile(classifier.lbp_path) and classifier.enabled:
 			# classifier file does not exist
-			new_classifier = cv2.CascadeClassifier(classifier.lbp_path)
-			loaded_classifiers.append(new_classifier)
+			initialised_classifier = cv2.CascadeClassifier(classifier.lbp_path)
+			loaded_classifiers.append([classifier, initialised_classifier])
 			print("Success: " + classifier.lbp_path)
 		else:
 			print("Failed:  " + classifier.lbp_path)
@@ -51,6 +51,11 @@ def classify_camera_stream():
 		# capture frame from camera
 		ret,frame = cap.read()
 		
+		if ret == False:
+			print("No camera input...")
+			return
+		
+		# perform classification on frame
 		classify(frame)
 		
 		# pause 5ms, close on esc key press
@@ -60,7 +65,9 @@ def classify_camera_stream():
 
 # classify bottles on single image
 def classify_image():
+	# read image from file
 	img = cv2.imread(args["image"])
+	# perform classification on frame
 	classify(img)
 	
 	cv2.waitKey(0)
@@ -71,39 +78,40 @@ def classify(frame):
 	# resize, scaled by target width
 	r = target_width / frame.shape[1]
 	dim = (int(target_width), int(frame.shape[0] * r))
-	frame_resized = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+	frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
 	
 	# flip image
-	#frame_resized = cv2.flip(frame_resized, 1)
+	#frame = cv2.flip(frame, 1)
 	
 	# get greyscale image
 	frame_grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	
 	for i, loaded_classifier in enumerate(loaded_classifiers):
 		# apply cascade classifier
-		detected_bottles = loaded_classifier.detectMultiScale(frame_grey, scaleFactor=1.05, minNeighbors=5, minSize=(classifier_table[i].min_width, classifier_table[i].min_height))
+		detected_bottles = loaded_classifier[1].detectMultiScale(frame_grey, scaleFactor=1.05, minNeighbors=5, minSize=(loaded_classifier[0].min_width, loaded_classifier[0].min_height))
 		
 		# draw results into image
 		for (x,y,w,h) in detected_bottles:
 			#print(w,h)
 			# get crop window size: dimensions * crop scale (percent of original)
-			crop_w = int(w * (classifier_table[i].crop_width * 0.01))
-			crop_h = int(h * (classifier_table[i].crop_height * 0.01))
+			crop_w = int(w * (loaded_classifier[0].crop_width * 0.01))
+			crop_h = int(h * (loaded_classifier[0].crop_height * 0.01))
+			crop_top_left = [int(x + (w*0.5) - (crop_w*0.5)) + loaded_classifier[0].crop_offset_x, int((y) + (h*0.5) - (crop_h*0.5)) + loaded_classifier[0].crop_offset_y]
+			crop_bottom_right = [int((x+w) - (w*0.5) + (crop_w*0.5)) + loaded_classifier[0].crop_offset_x, int((y+h) - (h*0.5) + (crop_h*0.5)) + loaded_classifier[0].crop_offset_y]
 			
 			# crop region of interest (ROI) from image
-			roi = frame[(y+crop_h):(y+h+crop_h), (x+crop_w):(x+w-crop_w)]
+			roi = frame[(crop_top_left[1]):(crop_bottom_right[1]), (crop_top_left[0]):(crop_bottom_right[0])]
 			#cv2.imshow('Bottle Detector: ROI', roi)
-		
+			#cv2.waitKey(0)
+			
 			# perform histogram comparison (classifier_id, rgb|hsv)
-			bottle_match = histogram.match_histogram(roi, classifier_table[i].classifier_id, args["type"])
+			bottle_match = histogram.match_histogram(roi, loaded_classifier[0].classifier_id, args["type"])
 			# skip draw if histogram search fails
-			print(bottle_match.rgb_path)
-			#sys.exit()
-			#if bottle_match.action == False:
-			#	break
+			if bottle_match.action == False:
+				break
 		
 			# draw rect around bottle ROI on original frame & label: image, top left point, bottom right point
-			cv2.rectangle(frame, (x+crop_w, y+crop_h), (x+w-crop_w, y+h+crop_h), frame_colours[i], 1)
+			cv2.rectangle(frame, (crop_top_left[0], crop_top_left[1]), (crop_bottom_right[0], crop_bottom_right[1]), frame_colours[i][1], 1)
 			# draw text label
 			cv2.putText(frame, bottle_match.rgb_path, (x+crop_w,y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255))
 			
