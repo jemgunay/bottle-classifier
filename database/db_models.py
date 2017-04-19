@@ -57,7 +57,7 @@ class Histogram(Model):
 	bottle_id = SmallIntegerField()
 	rgb_path = CharField()
 	hsv_path = CharField()
-	action = CharField()
+	action = BooleanField()
 
 	class Meta:
 		database = db
