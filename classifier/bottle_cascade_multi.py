@@ -4,9 +4,10 @@ import cv2
 #bottle_cascade = cv2.CascadeClassifier('classifier_1/classifier/cascade.xml')
 #bottle_cascade = cv2.CascadeClassifier('classifier_2/classifier/cascade.xml')
 #bottle_cascade = cv2.CascadeClassifier('classifier_3/classifier/cascade.xml')
-bottle_cascade = cv2.CascadeClassifier('classifier_2_resized_2/classifier/cascade.xml')
+bottle_cascade = cv2.CascadeClassifier('classifier_2_resized_2/classifier_good/cascade.xml')
 #bottle_cascade = cv2.CascadeClassifier('classifier_jd/classifier_first/cascade.xml')
-bottle_cascade_2 = cv2.CascadeClassifier('classifier_jd/classifier_second/cascade.xml')
+#bottle_cascade_2 = cv2.CascadeClassifier('classifier_jd/classifier_second/cascade.xml')
+#bottle_cascade_2 = cv2.CascadeClassifier('classifier_monster/classifier/cascade.xml')
 cap = cv2.VideoCapture(0)
 
 while(1):
