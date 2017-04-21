@@ -42,25 +42,20 @@ def get_recipes(bottle_ids):
 	
 	# check for recipe containing all ingredients
 	print("> Recipes including all detected ingredients:")
-	for recipe in results_grouping:
-		if recipe[1] == bottles_count:
+	for recipe_id, count in results_grouping.items():
+		if count == bottles_count:
 			# get recipe details
-			recipe_details = Recipe.select().where(Recipe.recipe_id = recipe[0])
-			print()
+			recipe_details = Recipe.select().where(Recipe.recipe_id == recipe_id).get()
+			print("\n~ Cocktail: " + recipe_details.name)
 			
-			ingredients = Ingredient.raw("""SELECT Recipe.recipe_id, Ingredient.name, Measure.amount FROM Measure
+			ingredients = Ingredient.raw("""SELECT Recipe.*, Ingredient.name, Measure.amount FROM Measure
 											INNER JOIN Ingredient ON (Ingredient.ingredient_id = Measure.ingredient_id) 
 											INNER JOIN Recipe ON Recipe.recipe_id = Measure.recipe_id
-											WHERE recipe_id = """ recipe[0])
+											WHERE Recipe.recipe_id = """ + str(recipe_id))
 
-			for ingredient in ingredients.execute
-	
-	
-	#print(sorted_grouping)
+			for ingredient in ingredients.execute():
+				print("  " + ingredient.amount + " " + ingredient.name)
 	
 
-
-	
-	
 
 get_recipes({8:"", 12:""})
