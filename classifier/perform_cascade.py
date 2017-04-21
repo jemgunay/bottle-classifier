@@ -7,6 +7,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/
 import db
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/histogram")
 import histogram
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/scraper")
+from recipe_searcher import get_recipes
 
 
 # manage cli args
@@ -65,17 +67,20 @@ def classify_camera_stream():
 		
 		# launch recipe viewer
 		if detection_results["frame_count"] == 0:
-			print("\n> Bottles detected:")
+			print("> Bottles detected:")
 			for bottle_id, bottle in detection_results["bottles"].items():
 				print(bottle.name)
 			print("\n> Launching recipe viewer...")
-			
+			# clean up
+			for i in range(1,10):
+				cv2.destroyAllWindows()
+				cv2.waitKey(1)
+			# display recipes
+			get_recipes(detection_results["bottles"])
 			break
 		
-		if detection_results["counting"]:
-			detection_results["frame_count"] -= 1
 		
-		key_pressed = cv2.waitKey(2)
+		key_pressed = cv2.waitKey(4) & 255
 		# start recording bottles on space key press		
 		if key_pressed == 32:
 			detection_results["counting"] = True
@@ -99,7 +104,10 @@ def classify_image():
 
 
 # perform classification
-def classify(frame, detection_results):	
+def classify(frame, detection_results):
+	if detection_results["counting"]:
+		detection_results["frame_count"] -= 1
+
 	# resize, scaled by target width
 	r = output_width / frame.shape[1]
 	dim = (int(output_width), int(frame.shape[0] * r))

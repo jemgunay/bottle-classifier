@@ -32,9 +32,7 @@ def insert_recipe(recipe):
 
 # get all cascades from database
 def get_classifiers():
-	classifiers = Classifier.select()
-
-	return classifiers
+	return Classifier.select()
 
 	
 # get all histograms associated with classifier_id
@@ -46,11 +44,25 @@ def get_histograms(classifier_id):
 	
 # get all bottle by id
 def get_bottle(bottle_id):
-	bottle = Bottle.select().where(Bottle.bottle_id == bottle_id).get()
-	
-	return bottle
+	return Bottle.select().where(Bottle.bottle_id == bottle_id).get()
 
 
+def get_recipes_by_ingredients(ingredients_str):
+	return Ingredient.raw("""SELECT Recipe.recipe_id, Recipe.rating, Ingredient.ingredient_id FROM Measure
+								INNER JOIN Ingredient ON (Ingredient.ingredient_id = Measure.ingredient_id) 
+								INNER JOIN Recipe ON Recipe.recipe_id = Measure.recipe_id
+								WHERE Ingredient.ingredient_id IN (""" + ingredients_str + """) ORDER BY rating DESC""")
+
+def get_ingredients_by_recipe(recipe_id):
+	return Ingredient.raw("""SELECT Recipe.recipe_id, Ingredient.name, Measure.amount FROM Measure
+											INNER JOIN Ingredient ON (Ingredient.ingredient_id = Measure.ingredient_id) 
+											INNER JOIN Recipe ON Recipe.recipe_id = Measure.recipe_id
+											WHERE Recipe.recipe_id = """ + str(recipe_id))
+
+
+# get ingredient id by bottle id
+def get_ingredient_id(bottle_id):
+	return Bottle.select().where(Bottle.bottle_id == bottle_id).get().ingredient_id
 
 
 db.close()

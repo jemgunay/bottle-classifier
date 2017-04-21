@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Classifier Recipes</title>
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+	</head>
+
+	<body>
+		<div class="container">
+			
+			<div class="page-header">
+			  <h1>Bottle Classifier <small>Search Results</small></h1>
+			</div>
+			
+			<div class="row">
+				
+				
+				{% for recipe in recipes %}
+					<div class="col-md-6">
+					
+						<a href="">{{ recipe[0].name }}</a>
+						{% for ingredient in recipe[1] %}
+							<p>{{ ingredient }}</p>
+						{% endfor %}
+					
+					</div>
+				{% endfor %}
+				
+				
+			</div>
+		</div>
+
+		<!-- script includes -->
+		<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}">
+	</body>
+	
+</html>
