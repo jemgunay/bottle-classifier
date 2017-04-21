@@ -20,11 +20,19 @@
 				{% for recipe in recipes %}
 					<div class="col-md-6">
 					
-						<a href="">{{ recipe[0].name }}</a>
-						{% for ingredient in recipe[1] %}
-							<p>{{ ingredient }}</p>
-						{% endfor %}
-					
+						<a role="button" data-toggle="collapse" href="javascript:void(0)" aria-expanded="false" aria-controls="collapseExample">
+							<h4>{{ recipe[0].name }}</h4>
+						</a>
+							
+						<div class="collapse" id="collapseExample">
+							<div class="well">
+							
+							{% for ingredient in recipe[1] %}
+								<p>{{ ingredient }}</p>
+							{% endfor %}
+							
+							</div>
+						</div>
 					</div>
 				{% endfor %}
 				
