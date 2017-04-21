@@ -1,7 +1,7 @@
 # Bottle Classifier & Cocktail Resolver
 An application for detecting and classifying bottles, as well as displaying appropriate cocktail recipes based on the classifier bottles.
 
-Achieved using trained HAAR/LBP cascades for detection and colour histograms generated of detected ROI to improve classification performance. Currently classifies 'Smirnoff Vodka' and 'Jack Daniels' bottles, as well as 'Red Bull' cans, 'Monster Energy' cans and an orange juice carton.
+Achieved using trained HAAR/LBP cascades for detection and colour histograms generated from detected ROI to improve classification performance. Currently classifies 'Smirnoff Vodka' and 'Jack Daniels' bottles, as well as 'Red Bull' cans, 'Monster Energy' cans and an orange juice carton.
 
 Example output can be seen in "test_data/".
 
