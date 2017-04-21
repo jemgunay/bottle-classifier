@@ -3,7 +3,7 @@ An application for detecting and classifying bottles, as well as displaying appr
 
 Achieved using trained HAAR/LBP cascades for detection and colour histograms generated of detected ROI to improve classification performance. Currently classifies 'Smirnoff Vodka' and 'Jack Daniels' bottles, as well as 'Red Bull' cans, 'Monster Energy' cans and an orange juice carton.
 
-Example output can be seen in "test_data/"
+Example output can be seen in "test_data/".
 
 ## Usage
 ### Main Application
@@ -16,15 +16,14 @@ python3 perform_cascade.py -i ../test_data/test_multi.jpg
 ```
 
 ### Recipe Scraper
-Scrap a singular recipe or multiple recipes by ingredient from "https://cocktail.uk.com"
+Scrap a singular recipe or multiple recipes by ingredient from "https://cocktail.uk.com". Add "-s" flag to save to MySQL database. 
 ```
 cd scraper
 python3 recipe_scraper.py -u https://www.cocktail.uk.com/cocktails/containing/vodka
 python3 recipe_scraper.py -u https://www.cocktail.uk.com/cocktails/cosmopolitan
-python3 recipe_scraper.py -u https://www.cocktail.uk.com/cocktails/cosmopolitan -s true
 ```
 
-### Flush Histograms
+### Generate/Flush Histograms
 After adding new images to "histogram/histogram_data", ".histo" histogram files can be generated. These must be entered into the database manually after creation.
 ```
 cd histogram
@@ -33,14 +32,14 @@ python3 create_histogram.py -i histogram_data/oj.jpg
 ```
 
 ## Dependencies
-Local MySQL database  
++ Local MySQL database  
   
-Python 3  
-OpenCV 3.1.0  
-NumPy  
-PyMySQL  
-peewee  
-Beautiful Soup 4  
-Flask  
-argparse  
-webbrowser  
++ Python 3  
++ OpenCV 3.1.0  
++ NumPy  
++ PyMySQL  
++ peewee  
++ Beautiful Soup 4  
++ Flask  
++ argparse  
++ webbrowser  
