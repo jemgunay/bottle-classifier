@@ -1,0 +1,29 @@
+SELECT Recipe.name,
+   Ingredient.name,
+   Measure.amount
+FROM Measure
+INNER JOIN Recipe ON Recipe.recipe_id = Measure.recipe_id
+INNER JOIN Ingredient ON Ingredient.ingredient_id = Measure.ingredient_id
+ORDER BY Ingredient.ingredient_id
+
+############ OR ################
+
+SELECT Recipe.name,
+   Ingredient.name,
+   Measure.amount
+FROM Measure
+INNER JOIN Recipe ON Recipe.recipe_id = Measure.recipe_id
+INNER JOIN Ingredient ON Ingredient.ingredient_id = Measure.ingredient_id
+WHERE Recipe.name = 'Cosmopolitan' ORDER BY Ingredient.ingredient_id
+
+############ OR ################
+
+SELECT Recipe.name,
+   Ingredient.name,
+   Measure.amount
+FROM Measure
+INNER JOIN Ingredient ON (Ingredient.ingredient_id = Measure.ingredient_id) AND Ingredient.name IN ('Orange Juice', 'Vodka')
+INNER JOIN Recipe ON Recipe.recipe_id = Measure.recipe_id
+ORDER BY Ingredient.ingredient_id
+
+

@@ -14,17 +14,21 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=False, default="", help="Path to the image for bottle classification")
 ap.add_argument("-t", "--type", required=False, default="RGB", help="(RGB or HSV) Colour histogram type to use")
 ap.add_argument("-m", "--metric", required=False, default="Chi-Squared", help="Colour histogram comparison distance metric")
+ap.add_argument("-c", "--camera", required=False, default=0, help="which camera to use (if multiple cameras are available)")
 args = vars(ap.parse_args())
 
 
 # target image display width
-target_width = 600.0
+output_width = 600.0
 # outline drawing colours
 frame_colours = [["green", (89, 218, 137)], ["red", (14, 66, 255)], ["blue", (135, 107, 51)], ["peach", (102, 136, 249)], ["light_blue", (158, 189, 128)]]
 
 # get all cascades from db
 classifier_table = db.get_classifiers()
 loaded_classifiers = []
+
+# start camera capture
+cap = cv2.VideoCapture(int(args["camera"]))
 
 
 # populate classifiers dict with supported classifiers from database
@@ -45,40 +49,60 @@ def init_classifier():
 
 # classify bottles on camera stream
 def classify_camera_stream():
-	# start camera capture
-	cap = cv2.VideoCapture(0)
-
+	# ingredients and buffer (how many frames to record detected ingredients for)
+	detection_results = {"bottles" : {}, "frame_count" : 3, "counting" : False}
+	
 	while(True):
 		# capture frame from camera
 		ret,frame = cap.read()
-		
+		# exit if no camera found
 		if ret == False:
 			print("No camera input...")
-			return
+			break
 		
 		# perform classification on frame
-		classify(frame)
+		classify(frame, detection_results)
 		
-		# pause 5ms, close on esc key press
-		if cv2.waitKey(5) == 27:
+		# launch recipe viewer
+		if detection_results["frame_count"] == 0:
+			print("\n> Bottles detected:")
+			for bottle_id, bottle in detection_results["bottles"].items():
+				print(bottle.name)
+			print("\n> Launching recipe viewer...")
+			
 			break
+		
+		if detection_results["counting"]:
+			detection_results["frame_count"] -= 1
+		
+		key_pressed = cv2.waitKey(2)
+		# start recording bottles on space key press		
+		if key_pressed == 32:
+			detection_results["counting"] = True
+			# close on esc key press
+		elif key_pressed == 27:
+			break
+		else:
+			continue
 	
 
 # classify bottles on single image
 def classify_image():
+	# ingredients and buffer (how many frames to record detected ingredients for)
+	detection_results = {"bottles" : {}, "frame_count" : 3, "counting" : False}
 	# read image from file
 	img = cv2.imread(args["image"])
 	# perform classification on frame
-	classify(img)
+	classify(img, detection_results)
 	
 	cv2.waitKey(0)
 
 
 # perform classification
-def classify(frame):	
+def classify(frame, detection_results):	
 	# resize, scaled by target width
-	r = target_width / frame.shape[1]
-	dim = (int(target_width), int(frame.shape[0] * r))
+	r = output_width / frame.shape[1]
+	dim = (int(output_width), int(frame.shape[0] * r))
 	frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
 	
 	# flip image
@@ -105,6 +129,7 @@ def classify(frame):
 			
 			# crop region of interest (ROI) from image
 			roi = frame[(crop_top_left[1]):(crop_bottom_right[1]), (crop_top_left[0]):(crop_bottom_right[0])]
+			# display roi as imagein widow
 			#cv2.imshow('Bottle Detector: ROI', roi)
 			#cv2.waitKey(0)
 			
@@ -114,16 +139,18 @@ def classify(frame):
 			if bottle_match.action == False:
 				break
 				
-			bottle = db.get_bottle(bottle_match.bottle_id)[0]
-		
+			bottle = db.get_bottle(bottle_match.bottle_id)
+			
+			# add bottle to list of detected bottles
+			if detection_results["counting"] == True:
+				detection_results["bottles"][bottle.bottle_id] = bottle
+			
 			# draw rect around bottle ROI on original frame & label: image, top left point, bottom right point
 			cv2.rectangle(frame, (crop_top_left[0], crop_top_left[1]), (crop_bottom_right[0], crop_bottom_right[1]), frame_colours[i][1], 1)
 			# draw text label
 			cv2.putText(frame, bottle.name, (crop_top_left[0], crop_top_left[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, frame_colours[i][1], 2)
 			cv2.putText(frame, bottle.name, (crop_top_left[0], crop_top_left[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,0,0), 1)
 
-			
-	
 	# draw image to window
 	cv2.imshow('Bottle Classifier', frame)
 	
@@ -137,6 +164,7 @@ else:
 	classify_image()
 	
 
+cap.release()
 cv2.destroyAllWindows()
 
 
