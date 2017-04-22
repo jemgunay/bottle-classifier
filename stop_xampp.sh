@@ -1,1 +1,1 @@
-sudo /opt/lampp/lampp stop
+/opt/lampp/lampp stop

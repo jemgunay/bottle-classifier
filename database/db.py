@@ -64,5 +64,8 @@ def get_ingredients_by_recipe(recipe_id):
 def get_ingredient_id(bottle_id):
 	return Bottle.select().where(Bottle.bottle_id == bottle_id).get().ingredient_id
 
+def get_ingredient_name(ingredient_id):
+	return Ingredient.select().where(Ingredient.ingredient_id == ingredient_id).get().name
+
 
 db.close()
