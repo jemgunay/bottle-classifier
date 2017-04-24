@@ -13,7 +13,7 @@ rgb_bins = (4, 4, 4)
 hsv_bins = (8, 12, 3)
 
 
-def match_histogram(roi, classifier_id, histogram_type):
+def match_histogram(roi, classifier_id, histogram_type, metric):
 	# create both histograms for ROI
 	query = create_histograms(roi)
 	# choose from either the RGB or HSV histogram
@@ -38,25 +38,37 @@ def match_histogram(roi, classifier_id, histogram_type):
 
 
 	# perform search
-	results = search(query_histogram, index)
-	# return closest match (as peewee object)
+	results = search(query_histogram, index, metric)
+	# return closest match (as peewee query object)
 	return results[0][1]
 	
 	
 
 # search
-def search(queryFeatures, index):
+def search(queryFeatures, index, metric):
 	results = {}
 	
 	for (k, features) in index.items():
-		# compute chi-squared distance
-		d = chi2_distance(features, queryFeatures)
+		d = []
+		reverse = False
+		
+		# compute distance metrics
+		if metric == "ChiSquared":
+			d = chi2_distance(features, queryFeatures)
+		elif metric == "Hellinger":
+			d = cv2.compareHist(features, queryFeatures, cv2.HISTCMP_BHATTACHARYYA)
+		elif metric == "Correlation":
+			d = cv2.compareHist(features, queryFeatures, cv2.HISTCMP_CORREL)
+			reverse = True
+		elif metric == "Intersection":
+			d = cv2.compareHist(features, queryFeatures, cv2.HISTCMP_INTERSECT)
+			referse = True
 		
 		# update results dict
 		results[k] = d	
 	
 	# sort results into closest match first
-	results = sorted([v, k] for (k, v) in results.items())
+	results = sorted([[v, k] for (k, v) in results.items()], reverse=reverse)
 
 	return results
 

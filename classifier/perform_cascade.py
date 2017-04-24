@@ -17,7 +17,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=False, default="", help="Path to the image for bottle classification")
 ap.add_argument("-t", "--type", required=False, default="RGB", help="(RGB or HSV) Colour histogram type to use")
 ap.add_argument("-c", "--classifier", required=False, default="LBP", help="(LBP or HAAR) Classifier type to use (if available)")
-ap.add_argument("-m", "--metric", required=False, default="Chi-Squared", help="Colour histogram comparison distance metric")
+ap.add_argument("-m", "--metric", required=False, default="ChiSquared", help="(ChiSquared, Correlation, Intersection, Hellinger) Colour histogram comparison distance metric")
 ap.add_argument("-w", "--webcam", required=False, default=0, help="which video camera/webcam to use (if multiple cameras are available)")
 args = vars(ap.parse_args())
 
@@ -150,7 +150,7 @@ def classify(frame, detection_results):
 			#cv2.waitKey(0)
 			
 			# perform histogram comparison (classifier_id, rgb|hsv)
-			bottle_match = histogram.match_histogram(roi, loaded_classifier[0].classifier_id, args["type"])
+			bottle_match = histogram.match_histogram(roi, loaded_classifier[0].classifier_id, args["type"], args["metric"])
 			# skip draw if histogram search fails
 			if bottle_match.action == False:
 				break
