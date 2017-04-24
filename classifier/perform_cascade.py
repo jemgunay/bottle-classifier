@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import sys, os
 import argparse
+from timeit import default_timer as timer
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/database")
 import db
@@ -15,8 +16,9 @@ from recipe_searcher import get_recipes
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=False, default="", help="Path to the image for bottle classification")
 ap.add_argument("-t", "--type", required=False, default="RGB", help="(RGB or HSV) Colour histogram type to use")
+ap.add_argument("-c", "--classifier", required=False, default="LBP", help="(LBP or HAAR) Classifier type to use (if available)")
 ap.add_argument("-m", "--metric", required=False, default="Chi-Squared", help="Colour histogram comparison distance metric")
-ap.add_argument("-c", "--camera", required=False, default=0, help="which camera to use (if multiple cameras are available)")
+ap.add_argument("-w", "--webcam", required=False, default=0, help="which video camera/webcam to use (if multiple cameras are available)")
 args = vars(ap.parse_args())
 
 
@@ -30,7 +32,7 @@ classifier_table = db.get_classifiers()
 loaded_classifiers = []
 
 # start camera capture
-cap = cv2.VideoCapture(int(args["camera"]))
+cap = cv2.VideoCapture(int(args["webcam"]))
 
 
 # populate classifiers dict with supported classifiers from database
@@ -38,13 +40,19 @@ def init_classifier():
 	# iterate over classifier paths & init cascade classifiers
 	print("> Classifiers:")
 	for classifier in classifier_table:
-		if os.path.isfile(classifier.lbp_path) and classifier.enabled:
+		# set classifier type
+		classifier_type = classifier.lbp_path
+		if args["classifier"] == "HAAR":
+			classifier_type = classifier.haar_path
+			
+		# check classifier file
+		if os.path.isfile(classifier_type) and classifier.enabled:
 			# classifier file does not exist
-			initialised_classifier = cv2.CascadeClassifier(classifier.lbp_path)
+			initialised_classifier = cv2.CascadeClassifier(classifier_type)
 			loaded_classifiers.append([classifier, initialised_classifier])
-			print("Enabled:  " + classifier.lbp_path)
+			print("Enabled:  " + classifier_type)
 		else:
-			print("Disabled: " + classifier.lbp_path)
+			print("Disabled: " + classifier_type)
 
 	print()
 
