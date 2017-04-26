@@ -3,6 +3,7 @@ import argparse
 import pickle
 import cv2
 import os, sys
+from matplotlib import pyplot as plt
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/database")
 import db
@@ -92,6 +93,13 @@ def create_histograms(image_rgb):
 	# normalise so scaled images will have similar histograms
 	hist_rgb = cv2.normalize(hist_rgb, hist_rgb)
 	hist_hsv = cv2.normalize(hist_hsv, hist_hsv)
+	
+	'''color = ('b','g','r')
+	for i,col in enumerate(color):
+		histr = cv2.calcHist([image_rgb],[i],None,[256],[0,256])
+		plt.plot(histr,color = col)
+		plt.xlim([0,256])
+	plt.show()'''
 	
 	# flatten histograms to 1D
 	hists_flat = [hist_rgb.flatten(), hist_hsv.flatten()]
