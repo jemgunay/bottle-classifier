@@ -3,7 +3,7 @@ An application for detecting and classifying bottles, as well as displaying appr
 
 Achieved using trained HAAR/LBP cascades for detection and colour histograms generated from detected ROI to improve classification performance. Currently classifies 'Smirnoff Vodka' and 'Jack Daniels' bottles, as well as 'Red Bull' cans, 'Monster Energy' cans and an orange juice carton.
 
-Example output can be seen in "test_data/".
+Example output can be seen in "results/".
 
 ## Usage
 ### Main Application
