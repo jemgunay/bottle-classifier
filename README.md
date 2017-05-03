@@ -3,7 +3,7 @@ An application for detecting and classifying bottles, as well as displaying appr
 
 Achieved using trained HAAR/LBP cascades for detection and colour histograms generated from detected ROI to improve classification performance. Currently classifies 'Smirnoff Vodka' and 'Jack Daniels' bottles, as well as 'Red Bull' cans, 'Monster Energy' cans and an orange juice carton.
 
-Example output can be seen in "test_data/".
+Example output can be seen in "results/".
 
 ## Usage
 ### Main Application
@@ -32,14 +32,13 @@ python3 create_histogram.py -i histogram_data/oj.jpg
 ```
 
 ## Dependencies
-+ Local MySQL database
++ Local MySQL database  
   
 + Python 3
-+ OpenCV 3.1.0
-+ NumPy
-+ PyMySQL
-+ peewee
++ OpenCV 3.1.0 & NumPy
++ PyMySQL & peewee
 + Beautiful Soup 4
 + Flask
 + argparse
 + webbrowser
++ pickle
