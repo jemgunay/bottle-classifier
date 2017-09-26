@@ -32,8 +32,7 @@ python3 create_histogram.py -i histogram_data/oj.jpg
 ```
 
 ## Dependencies
-+ Local MySQL database  
-  
++ MySQL database
 + Python 3
 + OpenCV 3.1.0 & NumPy
 + PyMySQL & peewee
