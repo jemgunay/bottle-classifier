@@ -7,7 +7,7 @@ Example output can be seen in "results/".
 
 ## Usage
 ### Main Application
-Ensure MySQL server is running and that the database has been created (import latest: "database/backup/bottle_classifier_backup_x.sql")
+Ensure MySQL server is running and that the database has been created (import latest: "database/backup/bottle_classifier_backup_x.sql"). Once target bottles have been classified, press the space key to resolve cocktail recipes.
 ```
 cd classifier
 python3 perform_cascade.py -h
